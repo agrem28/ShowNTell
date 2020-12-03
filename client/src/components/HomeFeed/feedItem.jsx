@@ -4,6 +4,8 @@
 /* eslint-disable guard-for-in */
 import React, { useState } from 'react';
 import axios from 'axios';
+import './homefeed.css';
+import { FaRegHeart, FaRegCommentDots } from 'react-icons/fa';
 
 const FeedItem = ({ post, handleUserClick }) => {
   const [liked, setLiked] = useState(post.liked);
@@ -15,22 +17,6 @@ const FeedItem = ({ post, handleUserClick }) => {
   const [currentComment, setCurrentComment] = useState('');
   const [commentsList, setCommentsList] = useState(post.comments || []);
   const [responseList, setResponseList] = useState([]);
-
-  const mainDiv = {
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    border: '3px solid black',
-    margin: '10px',
-    boxShadow: '5px 5px #888888',
-    width: '100%',
-  };
-
-  const buttons = {
-    width: '10%',
-    margin: '10px',
-    display: 'inline-block',
-  };
 
   const handleLiked = () => {
     axios
@@ -80,67 +66,57 @@ const FeedItem = ({ post, handleUserClick }) => {
   const handleChange = (event) => setCurrentComment(event.target.value);
 
   return (
-    <div style={mainDiv}>
-      <div style={{ border: '3px solid lightgrey' }}>
-        <div style={{ display: 'block' }}>
+    <div className="main-post-container">
+      <div>
+        <div className="posted-by">
           Posted By:
           {' '}
-          <div style={{ display: 'inline' }} onClick={handleUserClick}>
+          <div className="posted-by" onClick={handleUserClick}>
             {post.name}
           </div>
           {' '}
           in
           {' '}
-          <div style={{ display: 'inline' }}>
+          <div className="posted-in-show-title">
             {post.show || 'insert show here'}
           </div>
         </div>
-        <div>
+        <div className="feed-post-title">
           POST TITLE:
           {post.title}
         </div>
-        <p>
+        <p className="feed-post-content">
           POST CONTENT:
           {post.content}
         </p>
       </div>
-      <div style={{ display: 'block' }}>
+      <div>
         {liked ? (
-          <button
-            onClick={handleLiked}
-            style={{
-              width: '10%',
-              margin: '10px',
-              backgroundColor: 'orange',
-              display: 'inline-block',
-            }}
-          >
-            Liked
-          </button>
+          <div className="like-comment-block">
+            <FaRegHeart
+              className="liked-button"
+              onClick={handleLiked}
+            />
+            <p className="like-count">{likedCount}</p>
+          </div>
         ) : (
-          <button onClick={handleLiked} style={buttons}>
-            Like
-          </button>
+          <FaRegHeart className="like-button" onClick={handleLiked} />
         )}
-        <p style={{ display: 'inline' }}>{likedCount}</p>
-        <button onClick={handleCommentClicked} style={buttons}>
-          Comment
-        </button>
+        <FaRegCommentDots className="insert-comment-button" onClick={handleCommentClicked} />
       </div>
       {commentClicked ? (
         <div>
           <textarea
             placeholder="Insert comment here"
-            cols="50"
             onChange={handleChange}
           />
-          <button style={buttons} onClick={handleSubmit}>
+          <button className="submit-comment-button" onClick={handleSubmit}>
             Submit
           </button>
         </div>
       ) : null}
       <div>
-        <div>Comments</div>
+        <div className="comments-header">Comments</div>
         {commentsList.map((comment, i) => (
           <div
             key={i + comment.currentComment}
@@ -148,10 +124,10 @@ const FeedItem = ({ post, handleUserClick }) => {
           >
             <p>{comment.currentComment}</p>
             {comment.childComments.length > 0 ? (
-              <div style={{ marginLeft: '50px' }}>
-                <div>Responses</div>
+              <div>
+                <div className="responses-header">Responses</div>
                 {comment.childComments.map((childComment, index) => (
-                  <h4 key={index + childComment} style={{ color: 'red' }}>
+                  <h4 className="response" key={index + childComment}>
                     {childComment}
                   </h4>
                 ))}
@@ -159,6 +135,7 @@ const FeedItem = ({ post, handleUserClick }) => {
               </div>
             ) : null}
             <button
+              className="response-button"
               onClick={handleRespondClicked.bind(
                 this,
                 i + comment.currentComment,
@@ -169,11 +146,12 @@ const FeedItem = ({ post, handleUserClick }) => {
             {respondId === i + comment.currentComment ? (
               <div>
                 <textarea
+                  className="response-textbox"
                   placeholder="Respond Here."
                   cols="50"
                   onChange={handleChange}
                 />
-                <button style={buttons} onClick={handleRespondSubmit}>
+                <button className="submit-comment-button" onClick={handleRespondSubmit}>
                   Submit
                 </button>
               </div>

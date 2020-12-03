@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './sub.css';
 
 const Sub = ({ user, setView }) => {
   const [subs, setSubs] = useState([]);
   const [gotSubs, setGotSubs] = useState(false);
-  const style = { color: 'white' };
 
   const getSubs = () => {
     if (!gotSubs) {
@@ -21,12 +21,11 @@ const Sub = ({ user, setView }) => {
 
   return (
     <div>
-      <h1 style={style}>Subscriptions</h1>
+      <h1 id="header">Subscriptions</h1>
       {getSubs()}
       {subs.map((sub, i) => (
         <div
           key={sub + i}
-          style={style}
           data-id={sub.id}
           onClick={(e) => setView(e.target.dataset.id)}
         >

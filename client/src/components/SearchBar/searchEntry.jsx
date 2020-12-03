@@ -3,6 +3,11 @@ import axios from 'axios';
 import './search.css';
 
 const SearchFeedEntry = ({ show, onClick }) => {
+  // const shorten = (text) => {
+  //   const maxLength = 5;
+  //   if (text.length <= maxLength) return text;
+  //   return text.substr(0, text.lastIndexOf(' ', maxLength));
+  // };
   const getSummary = () => {
     let summary = show.summary.replace(/<p>|<\/p>/g, '');
     const output = [];
@@ -38,10 +43,14 @@ const SearchFeedEntry = ({ show, onClick }) => {
 
   return (
     <div className="show-card">
-      <div style={{ color: 'white' }} value={show.id} onClick={() => onClick(show)}>
-        <h3 className="show-name">{show.name}</h3>
-        <div className="show-summary">{getSummary()}</div>
+      <div className="show-name" value={show.id} onClick={() => onClick(show)}>
+        <div className="show-name">{show.name}</div>
         <img className="show-img" src={getImage()} alt="" />
+        <div className="show-summary">
+          (
+          {getSummary()}
+          )
+        </div>
       </div>
     </div>
   );

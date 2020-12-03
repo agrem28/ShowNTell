@@ -4,7 +4,7 @@ import FeedItem from './feedItem.jsx';
 import './homefeed.css';
 
 const HomeFeed = ({ posts, handleUserClick }) => (
-  <div>
+  <div className="home-feed-container">
     {posts
       ? posts.map((post, i) => (
         <FeedItem
