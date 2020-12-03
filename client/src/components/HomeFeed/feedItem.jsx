@@ -7,8 +7,8 @@ import axios from 'axios';
 import './homefeed.css';
 import { FaRegHeart, FaRegCommentDots } from 'react-icons/fa';
 
-const FeedItem = ({ post, handleUserClick }) => {
-  const [liked, setLiked] = useState(post.liked);
+const FeedItem = ({ post, handleUserClick, user }) => {
+  const [liked, setLiked] = useState(post.liked[user._id]);
   const [commentClicked, setCommentClicked] = useState(false);
   const [respondClicked, setRespondClicked] = useState(false);
   const [respondId, setRespondId] = useState('');
@@ -20,17 +20,22 @@ const FeedItem = ({ post, handleUserClick }) => {
 
   const handleLiked = () => {
     axios
-      .post('/liked', { postId: post._id, liked: !liked })
-      .then(({ data }) => {
-        console.log('DATA', data);
-        setLiked(data.liked);
-        setLikedCount(data.likedCount);
-      })
-      .catch((err) => console.log(err));
+      .post('/liked', { postId: post._id, liked })
+      .then(() => {
+        setLiked(!liked);
+        axios.get(`/post/${post._id}`)
+          .then(({ data }) => {
+            setLikedCount(data.likedCount);
+            setLiked(data.liked[user._id]);
+          }).catch();
+      }).catch((err) => console.log(err));
   };
 
   const handleCommentClicked = () => setCommentClicked(!commentClicked);
-  const handleRespondClicked = (id) => setRespondId(id);
+  const handleRespondClicked = (id) => {
+    setRespondId(id);
+    setRespondClicked(!respondClicked);
+  };
 
   const handleSubmit = (e) => {
     setCommentClicked(!commentClicked);
@@ -48,6 +53,7 @@ const FeedItem = ({ post, handleUserClick }) => {
   };
 
   const handleRespondSubmit = (e) => {
+    setRespondClicked(!respondClicked);
     e.target.previousSibling.value = '';
     const parentComment = e.target.parentElement.parentElement.firstChild.innerHTML;
 
@@ -143,7 +149,7 @@ const FeedItem = ({ post, handleUserClick }) => {
             >
               Respond
             </button>
-            {respondId === i + comment.currentComment ? (
+            {(respondId === i + comment.currentComment) && respondClicked ? (
               <div>
                 <textarea
                   className="response-textbox"
