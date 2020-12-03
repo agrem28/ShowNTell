@@ -85,20 +85,20 @@ const FeedItem = ({ post, handleUserClick }) => {
         <div style={{ display: 'block' }}>
           Posted By:
           {' '}
-          <h3 style={{ display: 'inline' }} onClick={handleUserClick}>
+          <div style={{ display: 'inline' }} onClick={handleUserClick}>
             {post.name}
-          </h3>
+          </div>
           {' '}
           in
           {' '}
-          <h3 style={{ display: 'inline' }}>
+          <div style={{ display: 'inline' }}>
             {post.show || 'insert show here'}
-          </h3>
+          </div>
         </div>
-        <h3>
+        <div>
           POST TITLE:
           {post.title}
-        </h3>
+        </div>
         <p>
           POST CONTENT:
           {post.content}
@@ -140,7 +140,7 @@ const FeedItem = ({ post, handleUserClick }) => {
         </div>
       ) : null}
       <div>
-        <h3>Comments</h3>
+        <div>Comments</div>
         {commentsList.map((comment, i) => (
           <div
             key={i + comment.currentComment}
@@ -149,7 +149,7 @@ const FeedItem = ({ post, handleUserClick }) => {
             <p>{comment.currentComment}</p>
             {comment.childComments.length > 0 ? (
               <div style={{ marginLeft: '50px' }}>
-                <h3>Responses</h3>
+                <div>Responses</div>
                 {comment.childComments.map((childComment, index) => (
                   <h4 key={index + childComment} style={{ color: 'red' }}>
                     {childComment}
