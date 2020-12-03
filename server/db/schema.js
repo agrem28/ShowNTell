@@ -30,7 +30,7 @@ const postSchema = mongoose.Schema({
   content: String,
   comments: Object,
   createdAt: Date,
-  liked: Boolean,
+  liked: Object,
   likedCount: Number,
 });
 

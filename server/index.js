@@ -196,20 +196,27 @@ app.put('/sendMessage/:id/:text', (req, res) => {
 app.post('/liked', (req, res) => {
   const postId = req.body.postId;
   const liked = req.body.liked;
-  const addOrMinus = liked === true ? 1 : -1;
+  const addOrMinus = liked ? -1 : 1;
 
-  Posts.updateOne({ _id: postId }, { $inc: { likedCount: addOrMinus }, liked })
-    .then((data) => {
-      Posts.find({ _id: postId }).then((post) => {
-        const body = {
-          liked: post[0].liked,
-          likedCount: post[0].likedCount,
-        };
-        // console.log('RIGHT HERE', body);
-        res.send(body);
-      });
-    })
-    .catch((err) => console.log(err));
+  Posts.findById(postId)
+    .then((post) => {
+      let newLiked = post.liked;
+      if (newLiked === undefined) {
+        newLiked = {};
+        newLiked[userInfo._id] = true;
+      } else if (post.liked[userInfo._id]) {
+        newLiked[userInfo._id] = false;
+      } else {
+        newLiked[userInfo._id] = true;
+      }
+      Posts.updateOne(
+        { _id: postId },
+        {
+          likedCount: post.likedCount + addOrMinus,
+          liked: newLiked,
+        },
+      ).catch();
+    }).then(() => res.send()).catch();
 });
 
 app.post('/addComment', (req, res) => {
@@ -326,7 +333,7 @@ app.post('/posts', (req, res) => {
     show,
     comments: {},
     createdAt: new Date(),
-    liked: false,
+    liked: {},
     likedCount: 0,
   })
     .then((post) => {
