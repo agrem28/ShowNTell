@@ -39,6 +39,7 @@ const Posts = mongoose.model('Posts', postSchema);
 const commentSchema = mongoose.Schema({
   currentComment: String,
   childComments: Array,
+  parentId: String,
   createdAt: Date,
 });
 

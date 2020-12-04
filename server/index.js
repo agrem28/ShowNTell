@@ -227,9 +227,10 @@ app.post('/liked', (req, res) => {
 
 app.post('/addComment', (req, res) => {
   const comment = req.body.comment;
-  comment.createdAt = new Date();
-  // console.log('----', comment);
   const postId = req.body.postId;
+  comment.createdAt = new Date();
+  comment.parentId = postId;
+  // console.log('----', comment);
   Comments.create(comment)
     .then((record) => {
       Posts.updateOne({ _id: postId }, { $push: { comments: record } })
@@ -242,25 +243,40 @@ app.post('/addComment', (req, res) => {
 });
 
 app.post('/addResponse', (req, res) => {
-  const update = (comments) => {
-    comments.forEach((comment) => {});
-  };
-  Posts.updateOne(
-    { 'comments.currentComment': req.body.comment.parentComment },
-    {
-      $push: {
-        'comments.$.childComments': req.body.comment.currentComment,
-      },
-    },
-  )
-    .then(() => {
-      Posts.find({ _id: req.body.comment.postId }).then((post) => {
-        res.send(post[0].comments);
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  const { response, parentComment, postId } = req.body;
+  response.createdAt = new Date();
+  response.parentId = parentComment;
+  Comments.create(response)
+    .then((record) => {
+      Comments.updateOne(
+        { _id: parentComment },
+        { $push: { childComments: record } },
+      ).then(() => {
+        Comments.find({ parentId: postId })
+          .then((records) => {
+            Posts.updateOne({ _id: postId }, { comments: records })
+              .then(() => {
+                Posts.findById(postId).then((post) => res.send(post.comments));
+              }).catch();
+          });
+      }).catch();
+    }).catch();
+  // Posts.updateOne(
+  //   { 'comments.currentComment': req.body.comment.parentComment },
+  //   {
+  //     $push: {
+  //       'comments.$.childComments': req.body.comment.currentComment,
+  //     },
+  //   },
+  // )
+  //   .then(() => {
+  //     Posts.find({ _id: req.body.comment.postId }).then((post) => {
+  //       res.send(post[0].comments);
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   });
 });
 
 app.get('/search/:query', (req, res) => {

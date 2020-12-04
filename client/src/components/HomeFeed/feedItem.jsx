@@ -19,6 +19,7 @@ const FeedItem = ({ post, handleUserClick, user }) => {
   const [responseList, setResponseList] = useState([]);
 
   const handleLiked = () => {
+    console.log(commentsList);
     axios
       .post('/liked', { postId: post._id, liked })
       .then(() => {
@@ -55,11 +56,11 @@ const FeedItem = ({ post, handleUserClick, user }) => {
   const handleRespondSubmit = (e) => {
     setRespondClicked(!respondClicked);
     e.target.previousSibling.value = '';
-    const parentComment = e.target.parentElement.parentElement.firstChild.innerHTML;
+    const parentComment = e.target.parentElement.parentElement.firstChild.id;
 
     axios
       .post('/addResponse', {
-        comment: { currentComment, parentComment, postId: post._id },
+        response: { currentComment, childComments: [] }, parentComment, postId: post._id,
       })
       .then(({ data }) => {
         setCommentsList(data);
@@ -128,13 +129,13 @@ const FeedItem = ({ post, handleUserClick, user }) => {
             key={i + comment.currentComment}
             id={i + comment.currentComment}
           >
-            <p>{comment.currentComment}</p>
+            <p id={comment._id}>{comment.currentComment}</p>
             {comment.childComments.length > 0 ? (
               <div>
                 <div className="responses-header">Responses</div>
                 {comment.childComments.map((childComment, index) => (
                   <h4 className="response" key={index + childComment}>
-                    {childComment}
+                    {childComment.currentComment}
                   </h4>
                 ))}
                 {' '}
