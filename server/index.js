@@ -16,7 +16,7 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const Notifs = require('twilio')(accountSid, authToken);
 const { GoogleStrategy } = require('./oauth/passport');
-const { Users, Posts, Shows } = require('./db/schema.js');
+const { Users, Posts, Shows, Comments } = require('./db/schema.js');
 // const { session } = require('passport');
 
 const app = express();
@@ -109,6 +109,12 @@ app.get('/posts', (req, res) => {
 
 app.get('/shows', (req, res) => {
   Shows.find()
+    .then((data) => res.status(200).json(data))
+    .catch();
+});
+
+app.get('/comments', (req, res) => {
+  Comments.find()
     .then((data) => res.status(200).json(data))
     .catch();
 });
@@ -221,16 +227,18 @@ app.post('/liked', (req, res) => {
 
 app.post('/addComment', (req, res) => {
   const comment = req.body.comment;
+  comment.createdAt = new Date();
   // console.log('----', comment);
   const postId = req.body.postId;
-  Posts.updateOne({ _id: postId }, { $push: { comments: comment } }).then(
-    () => {
-      Posts.find({ _id: postId }).then((post) => {
-        // console.log(post);
-        res.send(post[0].comments);
-      });
-    },
-  );
+  Comments.create(comment)
+    .then((record) => {
+      Posts.updateOne({ _id: postId }, { $push: { comments: record } })
+        .then(() => {
+          Posts.findById(postId)
+            .then((post) => res.send(post.comments)).catch();
+        }).catch();
+    })
+    .catch();
 });
 
 app.post('/addResponse', (req, res) => {
@@ -313,6 +321,7 @@ app.get('/delete', (req, res) => {
   Users.deleteMany()
     .then(() => Posts.deleteMany())
     .then(() => Shows.deleteMany())
+    .then(() => Comments.deleteMany())
     .then(() => res.status(200).json('done'))
     .catch();
 });

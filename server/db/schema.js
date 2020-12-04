@@ -36,8 +36,17 @@ const postSchema = mongoose.Schema({
 
 const Posts = mongoose.model('Posts', postSchema);
 
+const commentSchema = mongoose.Schema({
+  currentComment: String,
+  childComments: Array,
+  createdAt: Date,
+});
+
+const Comments = mongoose.model('Comments', commentSchema);
+
 module.exports = {
   Users,
   Shows,
   Posts,
+  Comments,
 };
