@@ -34,6 +34,7 @@ const FeedItem = ({ post, handleUserClick, user }) => {
 
   const handleCommentClicked = () => setCommentClicked(!commentClicked);
   const handleRespondClicked = (id) => {
+    console.log(id);
     setRespondId(id);
     setRespondClicked(!respondClicked);
   };
@@ -55,8 +56,8 @@ const FeedItem = ({ post, handleUserClick, user }) => {
 
   const handleRespondSubmit = (e) => {
     setRespondClicked(!respondClicked);
-    e.target.previousSibling.value = '';
-    const parentComment = e.target.parentElement.parentElement.firstChild.id;
+    setCurrentComment('');
+    const parentComment = e.target.parentElement.parentElement.parentElement.id;
 
     axios
       .post('/addResponse', {
@@ -71,6 +72,82 @@ const FeedItem = ({ post, handleUserClick, user }) => {
   };
 
   const handleChange = (event) => setCurrentComment(event.target.value);
+
+  const createRespondTextArea = (comment, i) => {
+    return (
+      <div>
+        {(respondId === i + comment.currentComment) && respondClicked ? (
+          <div>
+            <textarea
+              className="response-textbox"
+              placeholder="Respond Here."
+              cols="50"
+              onChange={handleChange}
+            />
+            <button className="submit-comment-button" onClick={handleRespondSubmit}>
+              Submit
+            </button>
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
+  const createRespondButton = (comment, i) => {
+    return (
+      <button
+        className="response-button"
+        onClick={handleRespondClicked.bind(
+          this,
+          i + comment.currentComment,
+        )}
+      >
+        Respond
+      </button>
+    );
+  };
+
+  const createResponseDiv = (response, i) => {
+    return (
+      <div>
+        <h4 className="response" key={response + i} id={response._id}>
+          {response.currentComment}
+          {createRespondButton(response, i)}
+          {createRespondTextArea(response, i)}
+        </h4>
+      </div>
+    );
+  };
+
+  const createCommentDiv = (comment, i) => {
+    return (
+      <div>
+        <div id={comment._id}>
+          {comment.currentComment}
+          {createRespondButton(comment, i)}
+          {createRespondTextArea(comment, i)}
+        </div>
+        {comment.childComments.length > 0 ? <div className="responses-header">Responses</div> : null}
+        {comment.childComments.map((response, index) => {
+          return (
+            <div>
+              {createResponseDiv(response, index)}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const createCommentsSection = () => {
+    return commentsList.map((comment, i) => {
+      return (
+        <div key={comment + i} id={i + comment.currentComment}>
+          {createCommentDiv(comment, i)}
+        </div>
+      );
+    });
+  };
 
   return (
     <div className="main-post-container">
@@ -124,7 +201,7 @@ const FeedItem = ({ post, handleUserClick, user }) => {
       ) : null}
       <div>
         <div className="comments-header">Comments</div>
-        {commentsList.map((comment, i) => (
+        {/* {commentsList.map((comment, i) => (
           <div
             key={i + comment.currentComment}
             id={i + comment.currentComment}
@@ -134,8 +211,19 @@ const FeedItem = ({ post, handleUserClick, user }) => {
               <div>
                 <div className="responses-header">Responses</div>
                 {comment.childComments.map((childComment, index) => (
-                  <h4 className="response" key={index + childComment}>
+                  <h4 className="response" key={index + childComment} id={childComment._id}>
                     {childComment.currentComment}
+                    <div>
+                      <button
+                        className="response-button"
+                        onClick={handleRespondClicked.bind(
+                          this,
+                          index + childComment.currentComment,
+                        )}
+                      >
+                        Respond
+                      </button>
+                    </div>
                   </h4>
                 ))}
                 {' '}
@@ -164,7 +252,8 @@ const FeedItem = ({ post, handleUserClick, user }) => {
               </div>
             ) : null}
           </div>
-        ))}
+        ))} */}
+        {createCommentsSection()}
       </div>
     </div>
   );
